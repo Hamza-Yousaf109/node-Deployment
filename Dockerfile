@@ -2,16 +2,16 @@ FROM node:24-alpine
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apk add --no-cache bash python3 make g++ sass
+# System dependencies (ONLY required tools)
+RUN apk add --no-cache bash python3 make g++ 
 
 # Copy package files first
 COPY package*.json ./
 
-# 🔥 IMPORTANT FIX: create folder BEFORE npm install
+# Create required folder BEFORE install
 RUN mkdir -p public/css
 
-# Install dependencies
+# Install node dependencies
 RUN npm install --legacy-peer-deps
 
 # Copy full project
