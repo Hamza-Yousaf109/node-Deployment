@@ -1,20 +1,15 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "node-app"
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
                 checkout scm
-            }
-        }
-
-        stage('Install Node') {
-            steps {
-                sh '''
-                    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-                    sudo apt-get install -y nodejs
-                '''
             }
         }
 
@@ -30,9 +25,21 @@ pipeline {
             }
         }
 
-        stage('Run App') {
+        stage('Build Docker Image') {
             steps {
-                sh 'nohup node app.js > app.log 2>&1 &'
+                sh 'docker build -t $IMAGE_NAME .'
+            }
+        }
+
+        stage('Stop Old Container') {
+            steps {
+                sh 'docker rm -f node-container || true'
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh 'docker run -d --name node-container -p 3000:3000 $IMAGE_NAME'
             }
         }
     }
