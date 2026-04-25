@@ -1,26 +1,22 @@
-# Base image (Node LTS stable)
 FROM node:24-alpine
 
-# Working directory
 WORKDIR /app
 
-# Install system dependencies (SCSS / build tools ke liye safe)
-RUN apk add --no-cache bash python3 make g++
+# Install system dependencies
+RUN apk add --no-cache bash python3 make g++ sass
 
-# Copy package files first (better caching)
+# Copy package files first
 COPY package*.json ./
 
-# Install dependencies (stable for CI/CD)
-RUN npm install --legacy-peer-deps
-
-# Create required folders BEFORE build (fix SCSS error)
+# 🔥 IMPORTANT FIX: create folder BEFORE npm install
 RUN mkdir -p public/css
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
 
 # Copy full project
 COPY . .
 
-# Expose app port
 EXPOSE 3000
 
-# Start application
 CMD ["npm", "start"]
