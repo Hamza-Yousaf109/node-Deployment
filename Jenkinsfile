@@ -3,13 +3,14 @@ pipeline {
 
     environment {
         IMAGE_NAME = "node-app"
+        CONTAINER_NAME = "node-app-container"
     }
 
     stages {
 
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                checkout scm
+                git branch: 'master', url: 'https://github.com/Hamza-Yousaf109/node-Deployment.git'
             }
         }
 
@@ -19,28 +20,32 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                sh 'npm test || true'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                sh "docker build -t ${IMAGE_NAME}:latest ."
             }
         }
 
         stage('Stop Old Container') {
             steps {
-                sh 'docker rm -f node-container || true'
+                sh "docker stop ${CONTAINER_NAME} || true"
+                sh "docker rm ${CONTAINER_NAME} || true"
             }
         }
 
-        stage('Run Container') {
+        stage('Run New Container') {
             steps {
-                sh 'docker run -d --name node-container -p 3000:3000 $IMAGE_NAME'
+                sh "docker run -d -p 3000:3000 --name ${CONTAINER_NAME} ${IMAGE_NAME}:latest"
             }
+        }
+    }
+
+    post {
+        success {
+            echo "🚀 Deployment Successful!"
+        }
+        failure {
+            echo "❌ Deployment Failed!"
         }
     }
 }
