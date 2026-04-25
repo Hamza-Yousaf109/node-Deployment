@@ -30,14 +30,6 @@ pipeline {
             }
         }
 
-        stage('Remove Old Image (Optional Clean Module Delete)') {
-            steps {
-                sh """
-                    docker rmi ${IMAGE_NAME}:latest || true
-                """
-            }
-        }
-
         stage('Run New Container') {
             steps {
                 sh """
