@@ -135,6 +135,7 @@ app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   session({
     resave: false, // Only save session if modified
