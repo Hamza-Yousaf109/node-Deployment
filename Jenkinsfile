@@ -3,8 +3,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "node-app"
-        CONTAINER_NAME = "node-app-container"
+        COMPOSE_PROJECT = "node-app-stack"
     }
 
     stages {
@@ -15,33 +14,34 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Stop Existing Containers') {
             steps {
-                sh "docker build -t ${IMAGE_NAME}:latest ."
+                sh '''
+                    docker compose down || true
+                '''
             }
         }
 
-        stage('Stop Old Container') {
+        stage('Build & Start Containers (Docker Compose)') {
             steps {
-                sh """
-                    docker stop ${CONTAINER_NAME} || true
-                    docker rm ${CONTAINER_NAME} || true
-                """
+                sh '''
+                    docker compose up -d --build
+                '''
             }
         }
 
-        stage('Run New Container') {
+        stage('Verify Containers') {
             steps {
-                sh """
-                    docker run -d -p 3000:3000 --name ${CONTAINER_NAME} ${IMAGE_NAME}:latest
-                """
+                sh '''
+                    docker ps
+                '''
             }
         }
     }
 
     post {
         success {
-            echo "🚀 Deployment Successful!"
+            echo "🚀 Deployment Successful using Docker Compose!"
         }
         failure {
             echo "❌ Deployment Failed!"
