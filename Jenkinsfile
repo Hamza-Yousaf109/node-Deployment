@@ -14,10 +14,17 @@ pipeline {
             }
         }
 
-        stage('Stop Existing Containers') {
+        stage('Clean Old Containers') {
             steps {
                 sh '''
-                    docker compose down || true
+                    echo "🧹 Cleaning old containers..."
+
+                    docker compose down -v --remove-orphans || true
+
+                    docker rm -f node-app-container || true
+                    docker rm -f mongo-container || true
+
+                    docker system prune -f || true
                 '''
             }
         }
@@ -25,6 +32,8 @@ pipeline {
         stage('Build & Start Containers (Docker Compose)') {
             steps {
                 sh '''
+                    echo "🚀 Building and starting containers..."
+
                     docker compose up -d --build
                 '''
             }
@@ -33,6 +42,7 @@ pipeline {
         stage('Verify Containers') {
             steps {
                 sh '''
+                    echo "📦 Running containers:"
                     docker ps
                 '''
             }
