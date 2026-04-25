@@ -1,11 +1,16 @@
-FROM node:20-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --no-audit --no-fund
+
+# safer install for production
+RUN npm install --legacy-peer-deps
 
 COPY . .
+
+# ensure folder exists (fix SCSS crash)
+RUN mkdir -p public/css
 
 EXPOSE 3000
 
