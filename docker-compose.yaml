@@ -1,22 +1,23 @@
-version: "3.8"
-
 services:
 
   app:
     build: .
     container_name: node-app-container
+    restart: always
     ports:
       - "3000:3000"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/test
+      - BASE_URL=http://localhost:3000
     depends_on:
       - mongo
-    environment:
-      - MONGO_URL=mongodb://mongo:27017/mydb
     networks:
       - app-network
 
   mongo:
     image: mongo:6
     container_name: mongo-container
+    restart: always
     ports:
       - "27017:27017"
     volumes:
@@ -24,8 +25,8 @@ services:
     networks:
       - app-network
 
-networks:
-  app-network:
-
 volumes:
   mongo-data:
+
+networks:
+  app-network:
