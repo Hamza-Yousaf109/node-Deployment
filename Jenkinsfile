@@ -1,15 +1,20 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'node18'
-    }
-
     stages {
 
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Hamza-Yousaf109/node-Deployment.git'
+                checkout scm
+            }
+        }
+
+        stage('Install Node') {
+            steps {
+                sh '''
+                    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+                    sudo apt-get install -y nodejs
+                '''
             }
         }
 
@@ -22,12 +27,6 @@ pipeline {
         stage('Test') {
             steps {
                 sh 'npm test || true'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'echo "Build complete"'
             }
         }
 
